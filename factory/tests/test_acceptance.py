@@ -637,6 +637,23 @@ class LifecycleTest(FixtureCase):
 
 
 # ---------------------------------------------------------------------------------------
+class RolePromptTest(unittest.TestCase):
+    def test_worktree_roles_are_told_to_run_commands_without_cd(self):
+        import sys
+        sys.path.insert(0, str(LIB))
+        from sfactory import roles
+        for role in roles.ROLES:
+            p = roles.prompt(SRC, role, "claude", "Role: x. Job: 001-x.", 1, "/jobs/001-x")
+            if role == "intake":
+                self.assertNotIn("without `cd`", p)
+            else:
+                self.assertIn("without `cd`", p, role)
+                self.assertIn("Ignore the definition's instruction", p, role)
+            if role.startswith("reviewer-") or role in {"spec-writer", "approver"}:
+                self.assertIn("read-only command allowlist", p, role)
+
+
+# ---------------------------------------------------------------------------------------
 class ReadinessTest(FixtureCase):
     def test_doctor_reports_three_parts_and_never_claims_live_auth(self):
         r = self.factory("doctor")

@@ -64,6 +64,16 @@ def preamble(role: str, host: str, artifact: str, job_dir: str) -> str:
         ]
     else:
         rules.append("- You are read-only: do not modify, create or delete any file, and do not commit.")
+    if role != "intake":
+        rules.append(
+            "- Your shell already starts in the job's worktree. Ignore the definition's instruction to "
+            "prefix commands with `cd <worktree> && `: run each command on its own, without `cd` and "
+            "without chaining (`&&`, `;`, `|`), e.g. `git diff " "<base>...HEAD` or `git log --oneline "
+            "<base>..HEAD`. "
+            + ("Chained or `cd`-prefixed commands may be refused by the read-only command allowlist. "
+               if role not in WRITERS else "")
+            + "Use absolute paths for files in the job folder or the main checkout.")
+    return "\n".join(rules)
     if role in {"reviewer-ui", "reviewer-ux", "builder"}:
         rules.append("- `agent-browser` may be unavailable. If the role needs visual evidence and you "
                      "cannot collect it, say so plainly under Notes/Validation: the limitation is recorded "
