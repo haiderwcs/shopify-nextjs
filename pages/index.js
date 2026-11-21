@@ -1,11 +1,17 @@
 import { getProductsInCollection } from "../lib/shopify"
 import ProductList from "../components/ProductList"
+import Hero from "../components/Hero"
+import Head from 'next/head'
+
 
 export default function Home({ products }) {
-  console.log(products)
 
   return (
-    <div className="bg-white text-3xl font-bold">
+    <div className="">
+      <Head>
+        <title>Shopify Next.js Project</title>
+      </Head>
+      <Hero />
       <ProductList products={products} />
     </div>
   )
