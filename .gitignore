@@ -139,3 +139,8 @@ yarn-error.log*
 # vercel
 .vercel
 >>>>>>> First commit
+
+# Software factory runtime data (machine-local)
+/factory/jobs/
+/.worktrees/
+/factory/**/__pycache__/

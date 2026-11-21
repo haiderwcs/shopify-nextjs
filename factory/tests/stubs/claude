@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Controlled stand-in for `claude -p --output-format json` (tests only).
+
+Records argv, answers from the fake scenario, and prints a Claude-shaped JSON
+result. FACTORY_STUB_MODE=error|ratelimit|garbage forces provider failures.
+"""
+import json
+import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from sfactory import fake_provider  # noqa: E402
+
+argv = sys.argv[1:]
+if argv[:1] == ["--version"]:
+    print("0.0.0 (stub Claude Code)")
+    sys.exit(0)
+if argv[:1] == ["--help"]:
+    print("-p, --print --output-format --json-schema --model --permission-mode --allowedTools "
+          "--disallowedTools --no-session-persistence --add-dir")
+    sys.exit(0)
+prompt = sys.stdin.read()
+log = os.environ.get("FACTORY_STUB_LOG")
+if log:
+    with open(log, "a") as f:
+        f.write(json.dumps({"bin": "claude", "argv": argv, "cwd": os.getcwd(),
+                            "role": fake_provider.parse_header(prompt)["role"]}) + "\n")
+mode = os.environ.get("FACTORY_STUB_MODE")
+if mode == "garbage":
+    print("this is not json")
+    sys.exit(0)
+if mode == "quota":
+    print(json.dumps({"type": "result", "subtype": "success", "is_error": True,
+                      "result": "You're out of usage credits. Switch to another model, or manage usage credits."}))
+    sys.exit(1)
+if mode == "ratelimit":
+    print(json.dumps({"type": "result", "subtype": "error_during_execution", "is_error": True,
+                      "result": "API Error: 429 rate limit exceeded"}))
+    sys.exit(1)
+try:
+    text = fake_provider.respond(None, prompt, Path.cwd(), os.environ)
+except fake_provider.FakeFailure as e:
+    print(json.dumps({"type": "result", "subtype": "error_during_execution", "is_error": True,
+                      "result": f"stub failure: {e.kind}"}))
+    sys.exit(1)
+model = argv[argv.index("--model") + 1] if "--model" in argv else "default"
+print(json.dumps({"type": "result", "subtype": "success", "is_error": False, "result": text,
+                  "total_cost_usd": 0.0123, "duration_ms": 5,
+                  "usage": {"input_tokens": 100, "output_tokens": 50, "cache_read_input_tokens": 10,
+                            "cache_creation_input_tokens": 0},
+                  "modelUsage": {f"stub-{model}": {}}}))
