@@ -2,8 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { formatter } from '../utils/helpers'
 
-const ProductCard = ({ product }) => {
-  const { handle, title } = product.node
+const ProductCard = ({ product, showSoldOut = false }) => {
+  const { handle, title, availableForSale } = product.node
 
   const { altText, url } = product.node.images.edges[0].node
 
@@ -22,6 +22,11 @@ const ProductCard = ({ product }) => {
               layout="fill"
               objectFit="cover"
             />
+            {showSoldOut && availableForSale === false && (
+              <span className="absolute top-3 right-3 px-2 py-1 rounded-md bg-red-600 text-white text-xs font-semibold">
+                Sold out
+              </span>
+            )}
           </div>
         </div>
         <h3 className="mt-4 text-lg font-medium text-gray-900">{title}</h3>
