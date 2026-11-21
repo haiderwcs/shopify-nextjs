@@ -228,7 +228,7 @@ class Runner:
                 return text
             last = res
             self.say(f"{job['id']}: {role} attempt {attempt} failed ({res['kind']}): {redact(res['error'])[:300]}")
-            if res["kind"] in {"auth", "missing", "config", "cancelled"}:
+            if res["kind"] in {"auth", "quota", "missing", "config", "cancelled"}:
                 break
             if attempt < self.cfg["max_attempts"]:
                 time.sleep(float(os.environ.get("FACTORY_RETRY_DELAY", "5")) * attempt)

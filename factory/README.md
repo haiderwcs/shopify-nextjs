@@ -111,7 +111,7 @@ the PR on GitHub (or send feedback to revise it), then `factory reconcile`.
 
 | Role | Claude (`claude -p --model`) | Codex (`codex exec -m`) |
 | --- | --- | --- |
-| intake | fable | account default (set an OpenAI model to override) |
+| intake | opus (upstream used fable, which bills to usage credits on some plans) | account default (set an OpenAI model to override) |
 | spec-writer, builder, approver | opus | account default |
 | reviewers | tier from routing: haiku / sonnet / opus | `hosts.codex.tiers` (null = default) |
 
@@ -125,7 +125,7 @@ in Claude Code uses each agent file's `model:` frontmatter.
 `prices_usd_per_mtok`, used for Codex only when a price is configured), observed
 token usage, and how many calls had unknown cost. Unknown is shown as unknown,
 never $0. The native `/factory` Claude Code path does not attribute cost to
-jobs. Intake on Fable may bill to usage credits depending on the plan.
+jobs. Models that bill to usage credits (e.g. Fable on some plans) stop with a `quota` error when credits run out; switch the role's model in config.
 
 ## How it stays safe
 

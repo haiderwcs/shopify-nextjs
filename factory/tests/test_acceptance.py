@@ -300,6 +300,11 @@ class FailureRepairTest(FixtureCase):
         self.assertIn("malformed", j["last_error"]["message"])
         r = self.run_issue(1, "claude", FACTORY_STUB_MODE="ratelimit")
         self.assertIn("rate_limit", self.job()["last_error"]["message"])
+        n = len(self.stub_log())
+        self.run_issue(1, "claude", FACTORY_STUB_MODE="quota")
+        self.assertIn("(quota)", self.job()["last_error"]["message"])
+        self.assertEqual(len(self.stub_log()) - n, 1)  # not retried
+        self.assertEqual(self.job()["stage"], "intake")
 
 
 # ---------------------------------------------------------------------------------------

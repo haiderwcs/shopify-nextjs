@@ -27,7 +27,7 @@ owned by a running terminal runner is refused by the scripts.
 ## The pipeline
 
 ```
-intake (fable)     → ACCEPT (scope possibly changed) | NEEDS-INFO | REJECT, posted as an issue comment
+intake (opus)      → ACCEPT (scope possibly changed) | NEEDS-INFO | REJECT, posted as an issue comment
 route (script)     → reviewers + models from risk/surfaces via config.json
 worktree           → factory/<job-id> from <remote>/<base>
 spec-writer (opus) → spec.md

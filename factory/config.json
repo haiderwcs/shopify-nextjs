@@ -43,7 +43,7 @@
   "hosts": {
     "claude": {
       "bin": "claude",
-      "models": { "intake": "fable", "spec-writer": "opus", "builder": "opus", "approver": "opus" },
+      "models": { "intake": "opus", "spec-writer": "opus", "builder": "opus", "approver": "opus" },
       "tiers": { "haiku": "haiku", "sonnet": "sonnet", "opus": "opus" }
     },
     "codex": {

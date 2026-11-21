@@ -36,6 +36,9 @@ class RoleResult(dict):
 
 def classify(text: str) -> str:
     t = (text or "").lower()
+    if any(s in t for s in ("usage credits", "out of credits", "credit balance", "insufficient_quota",
+                            "quota exceeded", "billing")):
+        return "quota"
     if any(s in t for s in ("rate limit", "rate_limit", "429", "overloaded", "usage limit", "too many requests")):
         return "rate_limit"
     if any(s in t for s in ("not logged in", "login", "authenticat", "api key", "unauthorized", "401",
