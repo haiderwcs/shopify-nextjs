@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Map intake's risk and surfaces (and, with --files, the branch's changed files) to required reviewers.
+
+Usage:
+  route <job-id>            from intake.md: code review always; risk sets its tier; surfaces add ui/ux/security
+  route <job-id> --files    also add reviewers for surfaces the branch's actual diff touches
+
+Records the result in job.json through the job module and prints it.
+"""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+from sfactory.jobs import Factory  # noqa: E402
+from sfactory.util import Refused  # noqa: E402
+
+
+def main(argv):
+    if not argv or len(argv) > 2 or (len(argv) == 2 and argv[1] != "--files"):
+        print(__doc__.strip(), file=sys.stderr)
+        sys.exit(2)
+    try:
+        fac = Factory()
+        job = fac.resolve(argv[0])
+        with fac.store.lock(job["id"]):
+            job = fac.sync(fac.store.load(job["id"]))
+            fac.check_owner(job)
+            if not job.get("intake"):
+                raise Refused(f"{job['id']} has no intake.md")
+            files = fac.changed_files(job) if len(argv) == 2 else None
+            r = fac.route(job, files)
+            fac.save(job)
+    except Refused as e:
+        print(f"route: {e}", file=sys.stderr)
+        sys.exit(1)
+    added = f" (added from changed files: {', '.join(r['added'])})" if files and r["added"] else ""
+    print(f"{job['id']}: reviewers " + ", ".join(f"{k} {v}" for k, v in r["reviewers"].items()) + added)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

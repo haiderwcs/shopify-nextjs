@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+"""Test/demo stand-in for `gh`: records every call; see factory/lib/sfactory/ghshim.py."""
+import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from sfactory import ghshim  # noqa: E402
+
+sys.exit(ghshim.main(sys.argv[1:], "" if sys.stdin.isatty() else sys.stdin.read()))
